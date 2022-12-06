@@ -52,7 +52,6 @@ def _parse() -> Tuple[List[List[str]], List[Instruction]]:
             continue
 
         if parsed_initial_config:
-            print(line)
             match = re.match(r"move (?P<number>\d+) from (?P<of>\d+) to (?P<to>\d+)", line)
             instruction = Instruction(match.groupdict())
             instructions.append(instruction)
