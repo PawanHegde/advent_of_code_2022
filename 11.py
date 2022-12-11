@@ -1,5 +1,6 @@
 import re
-from math import prod
+from functools import reduce
+from math import prod, lcm
 from typing import Callable, List, Tuple, Dict
 
 from aocd import data, submit
@@ -66,7 +67,7 @@ class Monkey:
     def get_inspect_count(self):
         return self.inspect_count
 
-    def operate(self, worry_reducer: Callable[[int], int] = lambda worry: worry / 3) -> List[Tuple[int, int]]:
+    def operate(self, worry_reducer: Callable[[int], int] = lambda worry: int(worry / 3)) -> List[Tuple[int, int]]:
         results = []
         for item in self.items:
             self.inspect_count += 1
@@ -118,15 +119,13 @@ def a():
 
 def b():
     monkeys: Dict[int, Monkey] = _parse()
-
-    # The optimal solution would be to find the least-common-multiple, but bah.
-    common_divisor: int = prod(mk.test_divisor for mk in monkeys.values())
+    common_divisor: int = reduce(lambda x, y: lcm(x, y), [int(mk.test_divisor) for mk in monkeys.values()])
 
     for i in range(10000):
         for monkey in monkeys.values():
             results = monkey.operate(worry_reducer=lambda worry: worry % common_divisor)
             for recipient, item in results:
-                monkeys[recipient].add_item(item % common_divisor)
+                monkeys[recipient].add_item(item)
 
     naughtiest = sorted(monkeys.values(), key=lambda mk: mk.get_inspect_count())[-2:]
     answer = prod((mk.get_inspect_count() for mk in naughtiest))
